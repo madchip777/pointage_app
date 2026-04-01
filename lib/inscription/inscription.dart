@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class ConnectionPage extends StatelessWidget {
-  const ConnectionPage({super.key});
+class InscriptionPage extends StatelessWidget {
+  const InscriptionPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Connection')),
+      appBar: AppBar(title: const Text('Inscription')),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -54,6 +54,10 @@ class ValidationDemoState extends State<ValidationDemo> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         TextFormField(
+          decoration: const InputDecoration(labelText: 'Nom/Surnom'),
+          validator: _validateUsername,
+        ),
+        TextFormField(
           decoration: const InputDecoration(labelText: 'Email'),
           validator: _validateEmail,
           keyboardType: TextInputType.emailAddress,
@@ -64,7 +68,7 @@ class ValidationDemoState extends State<ValidationDemo> {
           obscureText: !isPasswordVisible,
           decoration: InputDecoration(
             labelText: 'Mot de passe',
-            hintText: 'Entrez votre mot de passe',
+            hintText: 'Entrez un mot de passe',
             suffixIcon: IconButton(
               icon: Icon(
                 isPasswordVisible ? Icons.visibility : Icons.visibility_off,
@@ -86,9 +90,10 @@ class ValidationDemoState extends State<ValidationDemo> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Processing data')),
                 );
+                Navigator.of(context).pushNamedAndRemoveUntil('/general', (Route route) => false);
               }
             },
-            child: const Text('Ce connecter'),
+            child: const Text('S\'inscrire'),
           ),
         ),
       ],
@@ -119,6 +124,16 @@ class ValidationDemoState extends State<ValidationDemo> {
     }
     if (value.length < 6) {
       return 'Password length must be greater than 6';
+    }
+    return null;
+  }
+
+  String? _validateUsername(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Username cannot be empty';
+    }
+    if (value.length < 6) {
+      return 'Username length must be greater than 6';
     }
     return null;
   }
