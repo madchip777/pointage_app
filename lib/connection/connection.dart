@@ -1,125 +1,84 @@
 import 'package:flutter/material.dart';
 
-class ConnectionPage extends StatelessWidget {
+class ConnectionPage extends StatefulWidget {
   const ConnectionPage({super.key});
+
+  @override
+  State<ConnectionPage> createState() => _ConnectionPageState();
+}
+
+class _ConnectionPageState extends State<ConnectionPage> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _nomController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nomController.dispose();
+    super.dispose();
+  }
+
+  void _seConnecter() {
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
+
+    final String employeeName = _nomController.text.trim();
+    Navigator.pushReplacementNamed(
+      context,
+      '/accueil',
+      arguments: employeeName,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Connection')),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            ValidationDemo(),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('Retour'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class ValidationDemo extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() {
-    return ValidationDemoState();
-  }
-}
-
-class ValidationDemoState extends State<ValidationDemo> {
-  final _formKey = GlobalKey<FormState>();
-  bool isPasswordVisible = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(15.0),
-      child: Form(
-        key: _formKey,
-        child: formUI(),
-      ),
-    );
-  }
-
-  Widget formUI() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        TextFormField(
-          decoration: const InputDecoration(labelText: 'Email'),
-          validator: _validateEmail,
-          keyboardType: TextInputType.emailAddress,
-        ),
-        TextFormField(
-          keyboardType: TextInputType.text,
-          validator: _validatePassword,
-          obscureText: !isPasswordVisible,
-          decoration: InputDecoration(
-            labelText: 'Mot de passe',
-            hintText: 'Entrez votre mot de passe',
-            suffixIcon: IconButton(
-              icon: Icon(
-                isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                color: Theme.of(context).primaryColorDark,
-              ),
-              onPressed: () {
-                setState(() {
-                  isPasswordVisible = !isPasswordVisible;
-                });
-              },
+      appBar: AppBar(title: const Text('Connexion')),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                const Text(
+                  'Saisissez votre nom pour vous connecter',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _nomController,
+                  decoration: const InputDecoration(
+                    labelText: 'Nom de l\'employe',
+                    border: OutlineInputBorder(),
+                  ),
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) => _seConnecter(),
+                  validator: (String? value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Veuillez saisir un nom.';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _seConnecter,
+                  child: const Text('Se connecter'),
+                ),
+                const SizedBox(height: 8),
+                OutlinedButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/inscription');
+                  },
+                  child: const Text('Pas encore de compte ?'),
+                ),
+              ],
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
-          child: ElevatedButton(
-            onPressed: () {
-              if (_formKey.currentState!.validate()) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Processing data')),
-                );
-              }
-            },
-            child: const Text('Ce connecter'),
-          ),
-        ),
-      ],
+      ),
     );
-  }
-
-  String? _validateEmail(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Email field cannot be empty!';
-    }
-    String p = "[a-zA-Z0-9\+\.\_\%\-\+]{1,256}"
-        "\\@"
-        "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}"
-        "("
-        "\\."
-        "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25}"
-        ")+";
-    RegExp regExp = RegExp(p);
-    if (regExp.hasMatch(value)) {
-      return null;
-    }
-    return 'Email provided isn\'t valid. Try another email address';
-  }
-
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Password field cannot be empty';
-    }
-    if (value.length < 6) {
-      return 'Password length must be greater than 6';
-    }
-    return null;
   }
 }
