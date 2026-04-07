@@ -54,7 +54,7 @@ class ValidationDemoState extends State<ValidationDemo> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         TextFormField(
-          decoration: const InputDecoration(labelText: 'Nom/Surnom'),
+          decoration: const InputDecoration(labelText: 'Nom + Prénom'),
           validator: _validateUsername,
         ),
         TextFormField(
