@@ -12,6 +12,74 @@ class AccueilPage extends StatefulWidget {
 class _AccueilPageState extends State<AccueilPage> {
   bool _isSaving = false;
 
+  Widget _actionRectangle({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required VoidCallback? onTap,
+    bool isPrimary = false,
+  }) {
+    final Color background = isPrimary
+        ? Colors.blueGrey.shade700
+        : Colors.white;
+    final Color textColor = isPrimary ? Colors.white : Colors.blueGrey.shade900;
+    final Color subTextColor = isPrimary
+        ? Colors.white70
+        : Colors.blueGrey.shade600;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: Ink(
+          height: 88,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: background,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: Colors.blueGrey.shade100),
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: <Widget>[
+              Icon(icon, color: textColor, size: 26),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: textColor,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: TextStyle(color: subTextColor, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right, color: textColor),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   String _employeeNameFromArgs(BuildContext context) {
     final Object? args = ModalRoute.of(context)?.settings.arguments;
     if (args is String && args.trim().isNotEmpty) {
@@ -39,6 +107,13 @@ class _AccueilPageState extends State<AccueilPage> {
           ),
         ),
       );
+    } on PointageDuplicateException catch (error) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error.message)));
     } catch (_) {
       if (!mounted) {
         return;
@@ -79,53 +154,53 @@ class _AccueilPageState extends State<AccueilPage> {
               const SizedBox(height: 8),
               const Text('Selectionnez une action :'),
               const SizedBox(height: 24),
-              ElevatedButton.icon(
-                onPressed: _isSaving
+              _actionRectangle(
+                title: _isSaving ? 'Pointage en cours...' : 'Se pointer',
+                subtitle: 'Enregistrer l\'heure d\'arrivee maintenant',
+                icon: _isSaving ? Icons.hourglass_top : Icons.access_time,
+                onTap: _isSaving
                     ? null
                     : () => _pointerMaintenant(employeeName),
-                icon: _isSaving
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.access_time),
-                label: const Text('Se pointer'),
+                isPrimary: true,
               ),
               const SizedBox(height: 12),
-              ElevatedButton.icon(
-                onPressed: () {
+              _actionRectangle(
+                title: 'Voir l\'historique',
+                subtitle: 'Consulter la liste des pointages enregistres',
+                icon: Icons.history,
+                onTap: () {
                   Navigator.pushNamed(
                     context,
                     '/historique',
                     arguments: employeeName,
                   );
                 },
-                icon: const Icon(Icons.history),
-                label: const Text('Voir l\'historique'),
               ),
               const SizedBox(height: 12),
-              OutlinedButton(
-                onPressed: () {
+              _actionRectangle(
+                title: 'Page pointage detail',
+                subtitle: 'Acceder a l\'ecran de pointage complet',
+                icon: Icons.fingerprint,
+                onTap: () {
                   Navigator.pushNamed(
                     context,
                     '/pointage',
                     arguments: employeeName,
                   );
                 },
-                child: const Text('Page pointage (detail)'),
               ),
               const Spacer(),
-              OutlinedButton.icon(
-                onPressed: () {
+              _actionRectangle(
+                title: 'Se deconnecter',
+                subtitle: 'Retourner a l\'ecran de connexion',
+                icon: Icons.logout,
+                onTap: () {
                   Navigator.pushNamedAndRemoveUntil(
                     context,
                     '/connection',
                     (Route<dynamic> route) => false,
                   );
                 },
-                icon: const Icon(Icons.logout),
-                label: const Text('Se deconnecter'),
               ),
             ],
           ),

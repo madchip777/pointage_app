@@ -1,140 +1,144 @@
 import 'package:flutter/material.dart';
 
-class InscriptionPage extends StatelessWidget {
+class InscriptionPage extends StatefulWidget {
   const InscriptionPage({super.key});
+
+  @override
+  State<InscriptionPage> createState() => _InscriptionPageState();
+}
+
+class _InscriptionPageState extends State<InscriptionPage> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _nomController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isPasswordVisible = false;
+
+  @override
+  void dispose() {
+    _nomController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _inscrire() {
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
+
+    final String employeeName = _nomController.text.trim();
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Inscription terminee.')));
+    Navigator.of(context).pushNamedAndRemoveUntil(
+      '/accueil',
+      (Route<dynamic> route) => false,
+      arguments: employeeName,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Inscription')),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            ValidationDemo(),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('Retour'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class ValidationDemo extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() {
-    return ValidationDemoState();
-  }
-}
-
-class ValidationDemoState extends State<ValidationDemo> {
-  final _formKey = GlobalKey<FormState>();
-  bool isPasswordVisible = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(15.0),
-      child: Form(
-        key: _formKey,
-        child: formUI(),
-      ),
-    );
-  }
-
-  Widget formUI() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        TextFormField(
-          decoration: const InputDecoration(labelText: 'Nom + Prénom'),
-          validator: _validateUsername,
-        ),
-        TextFormField(
-          decoration: const InputDecoration(labelText: 'Email'),
-          validator: _validateEmail,
-          keyboardType: TextInputType.emailAddress,
-        ),
-        TextFormField(
-          keyboardType: TextInputType.text,
-          validator: _validatePassword,
-          obscureText: !isPasswordVisible,
-          decoration: InputDecoration(
-            labelText: 'Mot de passe',
-            hintText: 'Entrez un mot de passe',
-            suffixIcon: IconButton(
-              icon: Icon(
-                isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                color: Theme.of(context).primaryColorDark,
-              ),
-              onPressed: () {
-                setState(() {
-                  isPasswordVisible = !isPasswordVisible;
-                });
-              },
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                const Text(
+                  'Creez votre compte',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _nomController,
+                  decoration: const InputDecoration(
+                    labelText: 'Nom + Prenom',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (String? value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Veuillez saisir un nom.';
+                    }
+                    if (value.trim().length < 3) {
+                      return 'Le nom doit contenir au moins 3 caracteres.';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _emailController,
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (String? value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Veuillez saisir un email.';
+                    }
+                    final RegExp regExp = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+                    if (!regExp.hasMatch(value.trim())) {
+                      return 'Email invalide.';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: !_isPasswordVisible,
+                  decoration: InputDecoration(
+                    labelText: 'Mot de passe',
+                    border: const OutlineInputBorder(),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                    ),
+                  ),
+                  validator: (String? value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Veuillez saisir un mot de passe.';
+                    }
+                    if (value.length < 6) {
+                      return 'Le mot de passe doit contenir au moins 6 caracteres.';
+                    }
+                    return null;
+                  },
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) => _inscrire(),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _inscrire,
+                  child: const Text('S\'inscrire'),
+                ),
+                const SizedBox(height: 8),
+                OutlinedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Retour'),
+                ),
+              ],
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
-          child: ElevatedButton(
-            onPressed: () {
-              if (_formKey.currentState!.validate()) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Processing data')),
-                );
-                Navigator.of(context).pushNamedAndRemoveUntil('/general', (Route route) => false);
-              }
-            },
-            child: const Text('S\'inscrire'),
-          ),
-        ),
-      ],
+      ),
     );
-  }
-
-  String? _validateEmail(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Email field cannot be empty!';
-    }
-    String p = "[a-zA-Z0-9\+\.\_\%\-\+]{1,256}"
-        "\\@"
-        "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}"
-        "("
-        "\\."
-        "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25}"
-        ")+";
-    RegExp regExp = RegExp(p);
-    if (regExp.hasMatch(value)) {
-      return null;
-    }
-    return 'Email provided isn\'t valid. Try another email address';
-  }
-
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Password field cannot be empty';
-    }
-    if (value.length < 6) {
-      return 'Password length must be greater than 6';
-    }
-    return null;
-  }
-
-  String? _validateUsername(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Username cannot be empty';
-    }
-    if (value.length < 6) {
-      return 'Username length must be greater than 6';
-    }
-    return null;
   }
 }

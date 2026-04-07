@@ -2,6 +2,15 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+class PointageDuplicateException implements Exception {
+  const PointageDuplicateException(this.message);
+
+  final String message;
+
+  @override
+  String toString() => message;
+}
+
 class PointageEntry {
   const PointageEntry({
     required this.employeeName,
@@ -44,12 +53,17 @@ class PointageRepository {
     final List<String> rawEntries =
         prefs.getStringList(_storageKey) ?? <String>[];
 
-    final List<PointageEntry> entries = rawEntries
-        .map(
-          (String raw) =>
-              PointageEntry.fromJson(jsonDecode(raw) as Map<String, dynamic>),
-        )
-        .toList();
+    final List<PointageEntry> entries = <PointageEntry>[];
+    for (final String raw in rawEntries) {
+      try {
+        final Object decoded = jsonDecode(raw);
+        if (decoded is Map<String, dynamic>) {
+          entries.add(PointageEntry.fromJson(decoded));
+        }
+      } catch (_) {
+        // Ignore invalid legacy entries to keep local demo data usable.
+      }
+    }
 
     entries.sort(
       (PointageEntry a, PointageEntry b) =>
@@ -77,6 +91,18 @@ class PointageRepository {
     final String name = employeeName.trim();
     if (name.isEmpty) {
       throw ArgumentError('Le nom de l\'employe ne peut pas etre vide.');
+    }
+
+    final List<PointageEntry> existingForEmployee =
+        await getPointagesForEmployee(name);
+    final String today = _formatDate(DateTime.now());
+    final bool alreadyPointedToday = existingForEmployee.any(
+      (PointageEntry item) => item.date == today,
+    );
+    if (alreadyPointedToday) {
+      throw const PointageDuplicateException(
+        'Pointage deja enregistre pour aujourd\'hui.',
+      );
     }
 
     final DateTime now = DateTime.now();

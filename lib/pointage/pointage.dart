@@ -53,6 +53,22 @@ class _PointagePageState extends State<PointagePage> {
           ),
         ),
       );
+    } on PointageDuplicateException catch (error) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error.message)));
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Echec de l\'enregistrement du pointage.'),
+        ),
+      );
     } finally {
       if (mounted) {
         setState(() {
