@@ -65,7 +65,41 @@ pointage_app/
 - Inscription avec validation des champs
 - Enregistrement des pointages (date/heure)
 - Historique des presences avec calendrier mensuel visible
-- Stockage local via `shared_preferences`
+- Stockage local simple en memoire (maquette)
+
+## Systeme de conservation des presences
+
+Un systeme simple a ete ajoute pour garder les presences localement sur le device et les rendre accessibles dans toute l'application.
+
+Fichier central:
+
+- `lib/pointage/pointage_repository.dart`
+
+Ce fichier contient:
+
+- `PointageEntry`: modele d'une presence (nom employe, date, heure, timestamp)
+- `PointageRepository`: couche unique de lecture/ecriture
+- `PointageDuplicateException`: erreur metier si un employe pointe 2 fois le meme jour
+
+Regles de fonctionnement:
+
+- Les presences sont stockees en memoire dans un repository unique
+- Une presence maximum par employe et par jour (jour courant)
+- Les donnees sont relues depuis le repository pour alimenter les ecrans
+
+Note importante:
+
+- Le stockage en memoire est volontairement simple pour la maquette locale.
+- Les donnees sont conservees tant que l'application reste ouverte.
+- Si tu fermes/redemarres l'application, les presences repartent a zero.
+
+Distribution dans l'app:
+
+- `lib/general/general.dart`: bouton "Se pointer" -> enregistre via `PointageRepository.enregistrerPointage(...)`
+- `lib/pointage/pointage.dart`: enregistrement + affichage des derniers pointages de l'employe
+- `lib/historique/historique.dart`: lecture de tous les pointages ou d'un employe, puis affichage calendrier/liste
+
+Ce choix garde le code simple: une seule source de verite pour les presences, reutilisee par toutes les pages qui en ont besoin.
 
 ## Partie 3 - Compte rendu obligatoire
 
