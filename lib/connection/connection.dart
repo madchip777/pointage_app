@@ -25,7 +25,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
     final String employeeName = _nomController.text.trim();
     Navigator.pushReplacementNamed(
       context,
-      '/accueil',
+      '/general',
       arguments: employeeName,
     );
   }

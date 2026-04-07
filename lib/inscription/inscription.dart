@@ -32,7 +32,7 @@ class _InscriptionPageState extends State<InscriptionPage> {
       context,
     ).showSnackBar(const SnackBar(content: Text('Inscription terminee.')));
     Navigator.of(context).pushNamedAndRemoveUntil(
-      '/accueil',
+      '/general',
       (Route<dynamic> route) => false,
       arguments: employeeName,
     );

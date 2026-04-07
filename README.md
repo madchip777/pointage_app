@@ -2,6 +2,8 @@
 
 Application Flutter de pointage de presence (connexion, inscription, pointage et historique).
 
+![Screenshot page générale](/screenshots/Screenshot1.png)
+
 ## Prerequis
 
 - SDK Flutter installe
@@ -77,9 +79,10 @@ Le rendu doit contenir les elements suivants:
 Conseil de structure pour le rendu:
 
 1. Dossier `projet_flutter/` (code source complet)
-2. Dossier `captures/` (app + code)
-3. Fichier `compte_rendu.pdf` (explications)
+2. Dossier `lib/` (app + code)
 
 ## Source
+
+- Base layout Flutter: https://docs.flutter.dev/ui/layout
 
 - Cheat sheet Flutter: https://github.com/Temidtech/Flutter-Cheat-Sheet

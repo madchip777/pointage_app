@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'pointage_repository.dart';
-
 class PointagePage extends StatefulWidget {
   const PointagePage({super.key});
 
